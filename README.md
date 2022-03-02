@@ -1,5 +1,1 @@
-# H3K18la
-
-This site provides code and data for the manuscript entitled:
-
-"H3K18 lactylation marks tissue-specific active enhancers"
+# This site provides code and data for the manuscript submitted to Nucleic Acids Research - NAR-00625-X-2022:
