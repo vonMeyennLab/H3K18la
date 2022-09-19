@@ -1,5 +1,5 @@
 # This R script has been used to generate the following figures:
-### Figures 1B
+### Figure 1B
 ### Supp. Figures 1D, 6A
 
 library(edgeR)
