@@ -4,8 +4,10 @@
 
 library(ChIPseeker)
 library(ChIPpeakAnno)
+library(clusterProfiler)
 library(GenomicRanges)
 library(ggVennDiagram)
+library(gplots)
 library(gridExtra)							
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
@@ -101,3 +103,71 @@ ggvennlist_promoters[[6]]<-ggVennDiagram(genes.w.promoter.peaks[grep('ESC.ser',n
   ggtitle('ESC-ser')+ scale_color_manual(values=c("blue","orange","darkgreen"))
 
 do.call(grid.arrange,c(ggvennlist_promoters[1:6],nrow=2))
+
+######################################################################################################################################
+
+names(genes.w.promoter.peaks) <- gsub('.w.chr.sorted.bed','', names(genes.w.promoter.peaks))
+
+# Enumerate sets of all possible groups
+venn_GAS<- venn(genes.w.promoter.peaks[grep('GAS',names(genes.w.promoter.peaks))], show.plot = T)
+venn_PIM<- venn(genes.w.promoter.peaks[grep('PIM',names(genes.w.promoter.peaks))], show.plot = T)
+venn_ESC.ser<- venn(genes.w.promoter.peaks[grep('ESC.ser',names(genes.w.promoter.peaks))], show.plot = T)
+
+# Update sample names
+names(attributes(venn_GAS)$intersection)<-gsub('_merged','',names(attributes(venn_GAS)$intersection))
+names(attributes(venn_GAS)$intersection)<-gsub('GAS_','',names(attributes(venn_GAS)$intersection))
+names(attributes(venn_PIM)$intersection)<-gsub('_merged','',names(attributes(venn_PIM)$intersection))
+names(attributes(venn_PIM)$intersection)<-gsub('_1','',names(attributes(venn_PIM)$intersection))
+names(attributes(venn_PIM)$intersection)<-gsub('PIM_','',names(attributes(venn_PIM)$intersection))
+names(attributes(venn_ESC.ser)$intersection)<-gsub('_merged','',names(attributes(venn_ESC.ser)$intersection))
+names(attributes(venn_ESC.ser)$intersection)<-gsub('_public.bed','',names(attributes(venn_ESC.ser)$intersection))
+names(attributes(venn_ESC.ser)$intersection)<-gsub('_1','',names(attributes(venn_ESC.ser)$intersection))
+names(attributes(venn_ESC.ser)$intersection)<-gsub('ESC.ser_','',names(attributes(venn_ESC.ser)$intersection))
+
+# GO CC enrichment analysis for GAS samples
+x <- list(unique(unlist(attributes(venn_GAS)$intersection[names(attributes(venn_GAS)$intersection)=='H3K18la:H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_GAS)$intersection[names(attributes(venn_GAS)$intersection)=='H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_GAS)$intersection[names(attributes(venn_GAS)$intersection)=='H3K4me3'])))
+names(x) <- c('group1','group2','group3')
+
+compCC_GAS_sub <- compareCluster(geneCluster = x,
+                                 fun           = "enrichGO",
+                                 pvalueCutoff  = 0.05,
+                                 pAdjustMethod = "BH",
+                                 OrgDb='org.Mm.eg.db',
+                                 ont="CC")
+
+# GO CC enrichment analysis for PIM samples
+x <- list(unique(unlist(attributes(venn_PIM)$intersection[names(attributes(venn_PIM)$intersection)=='H3K18la:H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_PIM)$intersection[names(attributes(venn_PIM)$intersection)=='H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_PIM)$intersection[names(attributes(venn_PIM)$intersection)=='H3K4me3'])))
+names(x) <- c('group1','group2','group3')
+
+
+compCC_PIM_sub <- compareCluster(geneCluster = x,
+                                 fun           = "enrichGO",
+                                 pvalueCutoff  = 0.05,
+                                 pAdjustMethod = "BH",
+                                 OrgDb='org.Mm.eg.db',
+                                 ont="CC")
+
+# GO CC enrichment analysis for ESC.ser samples
+x <- list(unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K18la:H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K4me3'])))
+names(x) <- c('group1','group2','group3')
+
+compCC_ESC.ser_sub <- compareCluster(geneCluster = x,
+                                     fun           = "enrichGO",
+                                     pvalueCutoff  = 0.05,
+                                     pAdjustMethod = "BH",
+                                     OrgDb='org.Mm.eg.db',
+                                     ont="CC")
+
+# Combine the dot plots showing the GO CC enrichment analyses
+dp<-list()
+dp[[1]] <- dotplot(compCC_GAS_sub, showCategory=15, title = "GAS CC GO Enrichment Analysis", includeAll=T)
+dp[[2]] <- dotplot(compCC_PIM_sub, showCategory=15, title = "PIM CC GO Enrichment Analysis", includeAll=T)
+dp[[3]] <- dotplot(compCC_ESC.ser_sub, showCategory=15, title = "ESC.ser CC GO Enrichment Analysis", includeAll=T)
+
+do.call("grid.arrange",c(dp[c(3,1,2)],ncol=3))
