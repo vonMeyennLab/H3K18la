@@ -1,7 +1,8 @@
 # This R script has been used to generate the following figures:
 ### Figures 1F, 4D
-### Supp. Figures 3A, 3C
+### Supp. Figure 3C
 
+library(biomaRt)
 library(ChIPseeker)
 library(ChIPpeakAnno)
 library(clusterProfiler)
@@ -106,6 +107,8 @@ do.call(grid.arrange,c(ggvennlist_promoters[1:6],nrow=2))
 
 ######################################################################################################################################
 
+### Supp. Figure 3A
+                                 
 names(genes.w.promoter.peaks) <- gsub('.w.chr.sorted.bed','', names(genes.w.promoter.peaks))
 
 # Enumerate sets of all possible groups
@@ -171,3 +174,56 @@ dp[[2]] <- dotplot(compCC_PIM_sub, showCategory=15, title = "PIM CC GO Enrichmen
 dp[[3]] <- dotplot(compCC_ESC.ser_sub, showCategory=15, title = "ESC.ser CC GO Enrichment Analysis", includeAll=T)
 
 do.call("grid.arrange",c(dp[c(3,1,2)],ncol=3))
+                                 
+######################################################################################################################################
+
+### Figures 1H, 4F
+                                 
+# Load raw gene counts from RNAseq and promoter based CnT data
+ESC.ser <- read.delim("../ESC_hPTM_RNA_prom_rawCounts.txt")
+
+# Annotate gene IDs with gene names
+geneAnnotation <- getBM(attributes=c("ensembl_gene_id",'entrezgene_id', "external_gene_name","chromosome_name","start_position", "end_position"), 
+                        filters="ensembl_gene_id", 
+                        values=ESC.ser$EnsemblID, mart=ensembl)
+geneAnnotation$width = geneAnnotation$end_position-geneAnnotation$start_position   
+
+# Calculate RPKM values
+rpm <- merge(ESC.ser, geneAnnotation,
+             by.y="ensembl_gene_id", 
+             by.x="EnsemblID",all.y=T,all.x=T)
+rpm$RNA<-(2^rpm$RNA)/rpm$width*1000
+
+# Generate all possible groups of CnT histone marks
+x <- list(unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K18la:H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K27ac:H3K4me3'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K4me3'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K18la:H3K27ac'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K18la:H3K4me3'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K27ac'])),
+          unique(unlist(attributes(venn_ESC.ser)$intersection[names(attributes(venn_ESC.ser)$intersection)=='H3K18la'])))
+names(x) <- c('all','H3K27ac-H3K4me3','H3K4me3','H3K18la-H3K27ac','H3K18la-H3K4me3','H3K27ac','H3K18la')
+
+rpm$Promoter <- NA
+for (i in 1:length(names(x))){
+  rpm$Promoter[rpm$GeneName%in%x[[i]]]<- names(x)[i]
+}
+rpm$Promoter[is.na(rpm$Promoter)] <-'no active mark'
+rpm_ESC.ser<-rpm
+
+# Define group colors
+colors_to_use <- cbind(c('red','blue','lightblue','darkblue','orange','orange3','darkgreen','red'), sort(unique(rpm_ESC.ser$Promoter)))
+colnames(colors_to_use) <- c('color','Promoter')
+
+# Box plot showing the RPKM distribution of genes for each CnT histone group
+new_order <- with(rpm_ESC.ser,reorder(Promoter, RNA, median, na.rm=T))
+no2 <- data.frame(rpm_ESC.ser %>% group_by(Promoter) %>% summarise(median=median(RNA)))
+no2 <- merge(no2, colors_to_use, by = "Promoter")
+boxplot(log2(rpm_ESC.ser$RNA+1)~new_order,outline=F,
+        col=no2$color[order(no2$median)], ylab = '', xlab = 'Gene expression log2(RPKM)',notch=T,
+        horizontal=T,las=1,main='ESC-ser',ylim=c(0,7))
+
+text(y=1:8, x=6, paste0('n=',table(new_order)),cex=0.7)
+
+
+                              
