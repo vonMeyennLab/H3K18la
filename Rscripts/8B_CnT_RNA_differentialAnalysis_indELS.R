@@ -1,6 +1,6 @@
 # This R script has been used to generate the following figures:
-### Figure 3B
-### Supp. Figure 5B
+### Figure 3E
+### Supp. Figure 5E
 
 library(biomaRt)
 library(dplyr)
