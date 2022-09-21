@@ -1,6 +1,6 @@
 # This R script has been used to generate the following figures:
 ### Figures 2F, 4K
-### Supp. Figure S7B
+### Supp. Figure 7B
 
 library(clusterProfiler)
 library(GenomicRanges)
