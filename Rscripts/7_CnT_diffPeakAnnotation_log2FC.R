@@ -99,3 +99,18 @@ par(mfrow=c(2,2),mar=c(6,10,5,5))
 boxplot(abs(log2(rowMeans(ESC_H3K18la_rpmCounts[,1:2])/(1+rowMeans(ESC_H3K18la_rpmCounts[,3:4]))))~color_ESC,
         horizontal=T,las=1, main = '2i to ser',ylab='',xlab='abs(log2 FC)',notch=T,outpch=16,outcex=0.4)
 abline(v=median(abs(log2(rowMeans(ESC_H3K18la_rpmCounts[,3:4])/(1+ESC_H3K18la_rpmCounts[,1:2])))[color_ESC=='Promoter (<=1kb)']),lty=2,col='red')
+
+######################################################################################################################################
+
+### Figure 3G
+
+# Calculate overlaps between H3K18la peaks and MB/MT specific enhancers (done in BASH) using bedtools
+## bedtools intersect -wao -a H3K18la_peak.bed -b MT_enhancers.bed MB_enhancers.bed -sorted > H3K18la.overlap.MB_MT.enhancers.bed
+
+# Load the normalized counts ove H3K18la peaks overlapping with MB/MT enhancers
+MB_MT.peaks.overlap.w.tissue.enhancers <- read.table(list.files(pattern="overlap.MB_MT.enhancers.bed"),header=F)
+colnames(MB_MT.peaks.overlap.w.tissue.enhancers) <- c('chr.peak','start.peak','end.peak','MB_1','MT_1','MT_2','enhancer.origin','chr.enhancer','start.enhancer','end.enhancer','overlap.bp')
+
+par(mai=c(1.5,0.5,0.5,0.5),mfrow=c(2,3),xpd=T)
+boxplot(log2(rowMeans(MB_MT.peaks.overlap.w.tissue.enhancers[,5:6])/MB_MT.peaks.overlap.w.tissue.enhancers[,4])~paste0(c(MB_MT.peaks.overlap.w.tissue.enhancers$overlap.bp==0),MB_MT.peaks.overlap.w.tissue.enhancers$enhancer.origin),
+        notch=T,outline=T,names = c('MB enh','MT enh','no enh'), xlab = '', ylab = 'log2FC',main='MT vs MB H3K18la in myogenic enhancers',outpch=16, col = c('lightblue', 'blue4','seagreen2'))
