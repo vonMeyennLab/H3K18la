@@ -1,6 +1,6 @@
 
 # This R script has been used to generate the following figures:
-### Figures 1E, 4C
+### Figures 1E, 2B, 4C, 4I 
 
 library(GenomicRanges)
 library(pheatmap)
