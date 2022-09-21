@@ -20,7 +20,7 @@ genome_annotation <- readRDS("../genomeAnnotation_mm10.rds")
 genome_annotation_subset <-
   genome_annotation %>% .[c("CGI Promoters", "Non-CGI Promoters", "3' UTRs", "5' UTRs",
                             "Exons", "Introns", "Intergenic regions", 
-                            "PLS", "pELS", "dELS", "CTCF", "DNase_H3K4me3" )] %>% GRangesList()
+                            "PLS", "pELS", "dELS", "CTCF-only", "DNase-H3K4me3" )] %>% GRangesList()
 
 # Function calculating genome size based on genic and intergenic regions
 genome_size <- 
@@ -72,7 +72,7 @@ colnames(comb_FE) <- names(sampleFE)
 
 # Group genomic regions into genomic features and cCREs
 genomicFeatures <- c("CGI Promoters","Non-CGI Promoters", "Exons", "Introns", "3' UTRs", "Intergenic regions")
-cCREs <- c("CTCF", "DNase_H3K4me3", "PLS","pELS", "dELS")
+cCREs <- c("CTCF-only", "DNase-H3K4me3", "PLS","pELS", "dELS")
 
 # Heat map visualization of peak fold enrichment of all samples
 breaksList <- seq(-2, 2, by = 0.1)
