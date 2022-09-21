@@ -1,6 +1,6 @@
 # This R script has been used to generate the following figures:
 ### Figures 1F, 4D
-### Supp. Figure 3C
+### Supp. Figures 3C, 6F
 
 library(biomaRt)
 library(ChIPseeker)
