@@ -16,3 +16,8 @@ Given the expected relevance of this modification and current limited knowledge 
 #### Conclusions
 
 Overall, our data suggests that H3K18la is not only a marker for active promoters, but also a mark of tissue specific active enhancers.
+
+Content
+-------
+* `/Rscripts/`: R scripts for reproducing all figures of the manuscript
+* `/ChromHMM/`: Commands for Cut&Tag based ChromHMM analysis
