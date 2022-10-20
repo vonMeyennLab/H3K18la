@@ -20,7 +20,7 @@ Overall, our data suggests that H3K18la is not only a marker for active promoter
 
 - `/Rscripts/`: R scripts for reproducing all figures of the manuscript
 - `/ChromHMM/*.sh`: Commands for Cut&Tag based ChromHMM analysis
-- `/ChromHMM/*.bed`: List of chromatin states for each ChromHMM analysis
+- `/ChromHMM/*.bed`: Chromatin state regions for each ChromHMM analysis
     - `mmESC.ser_GRCm38_7_segments.bed`: List of chromatin states defined based on H3K18la, H3K27ac, H3K4me3 and H3K27me3 for mouse ESC serum/lif samples
     - `mmGAS_GRCm38_7_segments.bed`: List of chromatin states defined based on H3K18la, H3K27ac, H3K4me3 and H3K27me3 for mouse GAS samples
     - `mmPIM_GRCm38_7_segments.bed`: List of chromatin states defined based on H3K18la, H3K27ac, H3K4me3 and H3K27me3 for mouse PIM samples
