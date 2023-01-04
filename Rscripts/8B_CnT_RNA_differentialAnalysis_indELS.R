@@ -91,7 +91,7 @@ peakAnno_df$loci <- paste0(peakAnno_df$seqnames, ":", dELS_ol$start, "-", dELS_o
 
 peakAnno_df <- merge(peakAnno_df, dELS_ol, by="loci")
 
-# Summarize peak read counts in promoter
+# Summarize peak read counts in enhancer
 peak_dELS <- subset(peakAnno_df, abs(distanceToTSS) > 2000 & abs(distanceToTSS) < 100000)
 peak_dELS <- peak_dELS[-grep("predicted gene|microRNA|RIKEN|Riken|pseudogene", peak_dELS$GENENAME),]
 
